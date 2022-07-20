@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html style="background-color: #F2F2F2;">
+<code style="font-size: 1.46rem;">
+
+<ul style="list-style-type:none">
+<li>[CmdletBinding()]</li>
+<li>param (</li>
+  <ul style="list-style-type:none">
+  <li># The number of days the SSL certificate is valid</li>
+  <li>[Parameter(Mandatory=$false)]</li>
+  <li>[int]</li>
+  <li>$certificate_validity_days</li>
+  </ul>
+<li>)</li><br>
+
+<li>$listeners = Get-ChildItem WSMan:\localhost\Listener</li><br>
+ 
+<li># Evaluate if an existing HTTPS listener exists</li>
+<li>If (!($listeners | Where-Object {$_.Keys -like "TRANSPORT=HTTPS"})) {</li><br>
+
+
+  <ul style="list-style-type:none">
+  <li># Grab the system FQDN for the SSL certificate</li>
+  <li>$certname = [System.Net.Dns]::GetHostByName($env:computerName).Hostname</li><br>
+
+  <li># Generate a self-signed SSL certificate and add it to the local machine certificate store</li>
+  <li> $cert = New-SelfSignedCertificate -DnsName $certname -CertStoreLocation Cert:\LocalMachine\My -NotAfter (Get-Date).AddDays($certificate_validity_days)</li><br>
+
+  <li># Create the hashtables of settings to be used.</li>
+  <li>$valueset = @{</li>
+    <ul style="list-style-type:none">
+    <li>Hostname = $certname</li>
+    <li>CertificateThumbprint = $cert.Thumbprint</li>
+  </ul>
+  <li>}</li><br>
+
+  <li>$selectorset = @{</li>
+    <ul style="list-style-type:none">
+    <li>Transport = "HTTPS"</li>
+    <li>Address = "*"</li>
+  </ul>
+  <li>}</li><br>
+
+  <li># Create a HTTPS listener</li>
+  <li>New-WSManInstance -ResourceURI 'winrm/config/Listener' -SelectorSet $selectorset -ValueSet $valueset</li>
+  <li>Write-Output "{""status"":""Configured HTTPS listener""}"</li>
+  </ul>
+<li>} Else {</li>
+  <ul style="list-style-type:none">
+  <li>Write-Output "{""status"":""HTTPS listener already configured""}"</li>
+  </ul>
+} 
+
+</code>
+</html>

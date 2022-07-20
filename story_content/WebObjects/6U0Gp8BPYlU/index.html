@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html style="background-color: #F2F2F2;">
+<code style="font-size: 1.46rem;">
+$valueset = @{}<br>
+$valueset["Hostname"] = $certname<br>
+$valueset["CertificateThumbprint"] = $cert.Thumbprint<br>
+$selectorset = @{}<br>
+$selectorset["Transport"] = "HTTPS"<br>
+$selectorset["Address"] = "*"<br>
+New-WSManInstance -ResourceURI 'winrm/config/Listener' -SelectorSet $selectorset -ValueSet $valueset  
+</code>
+</html>

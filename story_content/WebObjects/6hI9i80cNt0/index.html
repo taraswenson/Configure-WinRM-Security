@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html style="background-color: #F2F2F2;">
+<code style="font-size: 1.46rem;">
+$certname = [System.Net.Dns]::GetHostByName($env:computerName).Hostname<br>
+$cert = New-SelfSignedCertificate -DnsName $certname -CertStoreLocation Cert:\LocalMachine\My  
+</code>
+</html>
